@@ -1,0 +1,147 @@
+version: 2
+
+sources:
+  - name: aviva_challenge
+    database: aviva-challenge
+    schema: avivaChallenge
+    tables:
+      - name: usuarios
+        description: "Tabla maestra de usuarios del sistema bancario"
+        columns:
+          - name: usuario_id
+            description: "Identificador único del usuario"
+            tests:
+              - not_null
+              - unique
+          - name: nombre
+            description: "Nombre(s) del usuario"
+          - name: apellido
+            description: "Apellido(s) del usuario"
+          - name: email
+            description: "Correo electrónico del usuario"
+            tests:
+              - not_null
+          - name: fecha_nacimiento
+            description: "Fecha de nacimiento del usuario"
+          - name: fecha_registro
+            description: "Fecha y hora de registro del usuario"
+            tests:
+              - not_null
+          - name: estado_cuenta
+            description: "Estado de la cuenta (activo/inactivo)"
+
+      - name: cuentas
+        description: "Cuentas bancarias de los usuarios"
+        columns:
+          - name: cuenta_id
+            description: "Identificador único de la cuenta"
+            tests:
+              - not_null
+              - unique
+          - name: usuario_id
+            description: "ID del usuario propietario"
+            tests:
+              - not_null
+              - relationships:
+                  to: source('aviva_challenge', 'usuarios')
+                  field: usuario_id
+          - name: tipo_cuenta
+            description: "Tipo de cuenta (corriente, ahorro, etc.)"
+          - name: saldo
+            description: "Saldo actual de la cuenta"
+          - name: moneda
+            description: "Moneda de la cuenta"
+          - name: fecha_apertura
+            description: "Fecha de apertura de la cuenta"
+
+      - name: prestamos
+        description: "Préstamos otorgados a los usuarios"
+        columns:
+          - name: prestamo_id
+            description: "Identificador único del préstamo"
+            tests:
+              - not_null
+              - unique
+          - name: usuario_id
+            description: "ID del usuario solicitante"
+            tests:
+              - not_null
+              - relationships:
+                  to: source('aviva_challenge', 'usuarios')
+                  field: usuario_id
+          - name: cuenta_id
+            description: "Cuenta asociada al préstamo"
+            tests:
+              - relationships:
+                  to: source('aviva_challenge', 'cuentas')
+                  field: cuenta_id
+          - name: monto_principal
+            description: "Monto original del préstamo"
+            tests:
+              - not_null
+          - name: tasa_interes
+            description: "Tasa de interés anual"
+          - name: plazo_meses
+            description: "Plazo del préstamo en meses"
+          - name: pago_mensual
+            description: "Monto del pago mensual"
+          - name: saldo_pendiente
+            description: "Saldo pendiente del préstamo"
+          - name: estado
+            description: "Estado del préstamo (activo, pagado, etc.)"
+
+      - name: transacciones
+        description: "Transacciones realizadas en las cuentas"
+        columns:
+          - name: transaccion_id
+            description: "Identificador único de la transacción"
+            tests:
+              - not_null
+              - unique
+          - name: cuenta_id
+            description: "Cuenta asociada a la transacción"
+            tests:
+              - not_null
+              - relationships:
+                  to: source('aviva_challenge', 'cuentas')
+                  field: cuenta_id
+          - name: monto
+            description: "Monto de la transacción"
+            tests:
+              - not_null
+          - name: tipo_transaccion
+            description: "Tipo (crédito/débito)"
+          - name: fecha_transaccion
+            description: "Fecha y hora de la transacción"
+            tests:
+              - not_null
+          - name: categoria
+            description: "Categoría de la transacción"
+
+      - name: tarjetas
+        description: "Tarjetas asociadas a las cuentas"
+        columns:
+          - name: tarjeta_id
+            description: "Identificador único de la tarjeta"
+            tests:
+              - not_null
+              - unique
+          - name: usuario_id
+            description: "Usuario titular de la tarjeta"
+            tests:
+              - not_null
+              - relationships:
+                  to: source('aviva_challenge', 'usuarios')
+                  field: usuario_id
+          - name: cuenta_id
+            description: "Cuenta asociada a la tarjeta"
+            tests:
+              - relationships:
+                  to: source('aviva_challenge', 'cuentas')
+                  field: cuenta_id
+          - name: tipo_tarjeta
+            description: "Tipo de tarjeta (débito/crédito)"
+          - name: limite_gasto
+            description: "Límite de gasto total"
+          - name: fecha_expiracion
+            description: "Fecha de expiración de la tarjeta"
